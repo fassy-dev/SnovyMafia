@@ -32,25 +32,28 @@ public class MafiaGame implements Listener {
     private boolean gameActive = true;
     private static final String SCOREBOARD_TITLE = "🎭 SnovyMafia";
 
+    // 🔥 ОЧЕРЕДЬ ИГРОКОВ
     private Set<UUID> queuedPlayers = new HashSet<>();
     private boolean acceptingPlayers = true;
 
+    // 👻 НЕВИДИМОСТЬ НОЧЬЮ
     private final Set<UUID> invisiblePlayers = new HashSet<>();
 
     public MafiaGame(SnovyMafia plugin) {
         this.plugin = plugin;
     }
 
+    // 🔥 НОВЫЙ МЕТОД: запуск игры без ожидания и с игнором минимального кол-ва
     public void startGameImmediately(boolean ignoreMinPlayers) {
-        acceptingPlayers = false;
+        acceptingPlayers = false; // больше нельзя записываться
         plugin.setCurrentGame(this);
-        assignRoles(ignoreMinPlayers);
+        assignRoles(ignoreMinPlayers); // передаём флаг
         if (!gameActive) return;
         startVotingPhase();
     }
 
     public void startWithCountdown() {
-        acceptingPlayers = false;
+        acceptingPlayers = false; // больше нельзя записываться
         plugin.setCurrentGame(this);
         broadcast("Игра начнётся через §c60 §fсекунд!");
         broadcast("Напиши §f/mafia join§f, чтобы записаться!");
@@ -80,6 +83,7 @@ public class MafiaGame implements Listener {
         startVotingPhase();
     }
 
+    // 🔥 ОБНОВЛЁННЫЙ assignRoles
     private void assignRoles(boolean ignoreMinPlayers) {
         List<Player> players = queuedPlayers.stream()
                 .map(Bukkit::getPlayer)
@@ -195,6 +199,7 @@ public class MafiaGame implements Listener {
             Role role = roles.get(p.getUniqueId());
             if (role == null || !role.hasNightAction()) continue;
 
+            // 🔥 ДЕЛАЕМ НЕВИДИМЫМ
             p.addPotionEffect(new org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.INVISIBILITY,
                     secondsLeft * 20 + 20, // на всё время ночи
@@ -512,6 +517,7 @@ public class MafiaGame implements Listener {
     }
 
     public void endGame() {
+        // Убираем scoreboard
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (playerScoreboards.containsKey(p.getUniqueId())) {
                 p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
@@ -519,6 +525,7 @@ public class MafiaGame implements Listener {
         }
         playerScoreboards.clear();
 
+        // 🔥 УБИРАЕМ НЕВИДИМОСТЬ
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (invisiblePlayers.contains(p.getUniqueId())) {
                 p.removePotionEffect(org.bukkit.potion.PotionEffectType.INVISIBILITY);
@@ -532,10 +539,11 @@ public class MafiaGame implements Listener {
         targets.clear();
         votes.clear();
         queuedPlayers.clear();
-        acceptingPlayers = true;
+        acceptingPlayers = true; // снова можно записываться
         lover1 = null;
         lover2 = null;
 
+        // Возвращаем цикл дня/ночи
         World world = Bukkit.getWorlds().get(0);
         if (world != null) {
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);

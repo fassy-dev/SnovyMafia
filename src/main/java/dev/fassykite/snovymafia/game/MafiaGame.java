@@ -538,7 +538,7 @@ public class MafiaGame implements Listener {
         roles.clear();
         targets.clear();
         votes.clear();
-        queuedPlayers.clear();
+        queuedPlayers.clear(); // ← ОЧИЩАЕМ ОЧЕРЕДЬ
         acceptingPlayers = true; // снова можно записываться
         lover1 = null;
         lover2 = null;

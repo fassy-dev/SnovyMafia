@@ -1,0 +1,19 @@
+name: SnovyMafia
+version: '2.8.1-beta'
+main: dev.fassykite.snovymafia.SnovyMafia
+api-version: 1.21
+authors: [Fassykite]
+description: Игра Mafia на снежную тематику от Fassykite
+commands:
+  mafia:
+    description: Основная команда мафии
+    usage: |
+      /<command> - открыть GUI (для ведущих)
+      /<command> join - записаться в игру
+      /<command> leave - выйти из очереди
+      /<command> leading add <ник> - добавить ведущего
+      /<command> leading remove <ник> - убрать ведущего
+    aliases: [мафия]
+  vote:
+    description: Проголосовать за игрока днём
+    usage: /vote <ник>

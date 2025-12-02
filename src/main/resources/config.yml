@@ -1,0 +1,25 @@
+night-duration: 120
+day-vote-duration: 60
+leaders: []
+
+enabled-roles:
+  villager: true
+  mafia: true
+  don: false
+  sheriff: true
+  doctor: true
+  maniac: false
+  lover: false
+  stripper: false
+  seer: false
+  bodyguard: false
+  gangster: false
+  judge: false
+  terrorist: false
+  sergeant: false
+  prosecutor: false
+  mayor: false
+  witness: false
+  kamikaze: false
+  bartender: false
+  angel: false

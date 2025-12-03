@@ -82,6 +82,15 @@ public class SnovyMafia extends JavaPlugin {
         saveConfig();
     }
 
+    public int getStartCountdownDuration() {
+        return getConfig().getInt("start-countdown-duration", 60);
+    }
+
+    public void setStartCountdownDuration(int seconds) {
+        getConfig().set("start-countdown-duration", seconds);
+        saveConfig();
+    }
+    
     public MafiaGame getCurrentGame() { return currentGame; }
     public void setCurrentGame(MafiaGame game) { this.currentGame = game; }
 }

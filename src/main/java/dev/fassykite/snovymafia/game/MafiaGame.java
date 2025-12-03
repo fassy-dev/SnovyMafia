@@ -43,6 +43,7 @@ public class MafiaGame implements Listener {
         this.plugin = plugin;
     }
 
+
     // 🔥 НОВЫЙ МЕТОД: запуск игры без ожидания и с игнором минимального кол-ва
     public void startGameImmediately(boolean ignoreMinPlayers) {
         acceptingPlayers = false; // больше нельзя записываться
@@ -80,10 +81,28 @@ public class MafiaGame implements Listener {
     public void startWithCountdown() {
         acceptingPlayers = false; // больше нельзя записываться
         plugin.setCurrentGame(this);
-        broadcast("Игра начнётся через §c60 §fсекунд!");
-        broadcast("Напиши §f/mafia join§f, чтобы записаться!");
 
-        int countdownSeconds = 60; // можно настроить в config.yml
+        // Если никто не записался через /join — берем всех онлайн (как раньше)
+        if (queuedPlayers.isEmpty()) {
+            List<Player> onlinePlayers = Bukkit.getOnlinePlayers().stream()
+                    .filter(p -> !plugin.getLeaders().contains(p.getName()))
+                    .filter(Player::isOnline)
+                    .collect(Collectors.toList());
+
+            if (onlinePlayers.size() < 4) {
+                broadcast("Недостаточно игроков! (Минимум §c4 §fигрока для начала игры.)");
+                endGame();
+                return;
+            }
+
+            for (Player p : onlinePlayers) {
+                queuedPlayers.add(p.getUniqueId());
+            }
+        }
+
+        broadcast("Игра начнётся через §c60 §fсекунд!");
+
+        int countdownSeconds = plugin.getStartCountdownDuration();
         int[] countdown = {countdownSeconds};
         new BukkitRunnable() {
             @Override
@@ -216,7 +235,7 @@ public class MafiaGame implements Listener {
         phase = Phase.NIGHT;
         secondsLeft = plugin.getNightDurationSeconds();
         targets.clear();
-        broadcast("Начинается ночь... Ночные роли, действуйте...");
+        broadcast("НОЧЬ. Ночные роли, действуйте...");
         setMinecraftTime(false);
 
         for (Player p : Bukkit.getOnlinePlayers()) {

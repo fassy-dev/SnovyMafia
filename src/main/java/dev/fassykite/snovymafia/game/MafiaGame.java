@@ -83,7 +83,8 @@ public class MafiaGame implements Listener {
         broadcast("Игра начнётся через §c60 §fсекунд!");
         broadcast("Напиши §f/mafia join§f, чтобы записаться!");
 
-        int[] countdown = {60};
+        int countdownSeconds = 60; // можно настроить в config.yml
+        int[] countdown = {countdownSeconds};
         new BukkitRunnable() {
             @Override
             public void run() {

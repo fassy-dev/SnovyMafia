@@ -1,5 +1,5 @@
 name: SnovyMafia
-version: '2.8.9-beta'
+version: '2.11.9-beta'
 main: dev.fassykite.snovymafia.SnovyMafia
 api-version: 1.21
 authors: [Fassykite]

@@ -47,7 +47,32 @@ public class MafiaGame implements Listener {
     public void startGameImmediately(boolean ignoreMinPlayers) {
         acceptingPlayers = false; // больше нельзя записываться
         plugin.setCurrentGame(this);
-        assignRoles(ignoreMinPlayers); // передаём флаг
+
+        // Если никто не записался через /join — берем всех онлайн (как раньше)
+        if (queuedPlayers.isEmpty()) {
+            List<Player> onlinePlayers = Bukkit.getOnlinePlayers().stream()
+                    .filter(p -> !plugin.getLeaders().contains(p.getName()))
+                    .filter(Player::isOnline)
+                    .collect(Collectors.toList());
+
+            if (!ignoreMinPlayers && onlinePlayers.size() < 4) {
+                broadcast("Недостаточно игроков! (Минимум §c4 §fигрока для начала игры.)");
+                endGame();
+                return;
+            }
+
+            if (ignoreMinPlayers && onlinePlayers.size() < 2) {
+                broadcast("Слишком мало игроков для старта! (Минимум §c2 §fигрока.)");
+                endGame();
+                return;
+            }
+
+            for (Player p : onlinePlayers) {
+                queuedPlayers.add(p.getUniqueId());
+            }
+        }
+
+        assignRoles(ignoreMinPlayers);
         if (!gameActive) return;
         startVotingPhase();
     }

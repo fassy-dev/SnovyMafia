@@ -62,7 +62,6 @@ public class SnovyMafia extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new StartCountdownChoiceGui(), this);
         getServer().getPluginManager().registerEvents(new MessageSettingsGui(), this);
         getServer().getPluginManager().registerEvents(new OtherSettingsGui(), this);
-        getServer().getPluginManager().registerEvents(new StartCountdownChoiceGui(), this);
         getServer().getPluginManager().registerEvents(new MinPlayersChoiceGui(), this);
     }
 
@@ -176,7 +175,18 @@ public class SnovyMafia extends JavaPlugin {
 
     // 🧩 Прочее
     public boolean isAllowJoinDuringGame() { return allowJoinDuringGame; }
+    public void setAllowJoinDuringGame(boolean enabled) {
+        this.allowJoinDuringGame = enabled;
+        getConfig().set("allow-join-during-game", enabled);
+        saveConfig();
+    }
+
     public boolean isAllowLeaveDuringGame() { return allowLeaveDuringGame; }
+    public void setAllowLeaveDuringGame(boolean enabled) {
+        this.allowLeaveDuringGame = enabled;
+        getConfig().set("allow-leave-during-game", enabled);
+        saveConfig();
+    }
 
     // 💬 Префиксы и сообщения
     public String getChatPrefix() { return chatPrefix; }

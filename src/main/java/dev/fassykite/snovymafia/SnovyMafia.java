@@ -2,10 +2,12 @@ package dev.fassykite.snovymafia;
 
 import dev.fassykite.snovymafia.commands.MafiaCommand;
 import dev.fassykite.snovymafia.commands.MafiaTabCompleter;
+import dev.fassykite.snovymafia.expansion.SnovyMafiaExpansion;
 import dev.fassykite.snovymafia.game.MafiaGame;
 import dev.fassykite.snovymafia.game.Role;
 import dev.fassykite.snovymafia.gui.*;
 import dev.fassykite.snovymafia.listeners.NightListener;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashSet;
@@ -45,6 +47,11 @@ public class SnovyMafia extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         loadConfig();
+
+        // Регистрация PlaceholderAPI
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new SnovyMafiaExpansion(this).register();
+        }
 
         // Регистрация команд
         getCommand("mafia").setExecutor(new MafiaCommand(this));

@@ -12,17 +12,14 @@ public class SettingsGui implements Listener {
     private static final String TITLE = "⚙️ Настройки";
 
     public static void open(Player player, SnovyMafia plugin) {
-        Inventory inv = org.bukkit.Bukkit.createInventory(null, 27, TITLE);
+        Inventory inv = org.bukkit.Bukkit.createInventory(null, 36, TITLE);
 
-        // Кнопки настроек
-        inv.setItem(11, GuiUtil.createGuiItem(Material.CLOCK, "⏱ Время игры",
-                "Текущее время ночи: §c" + plugin.getNightDurationSeconds() + "с",
-                "Текущее время голосования: §c" + plugin.getDayVoteDuration() + "с"));
+        inv.setItem(10, GuiUtil.createGuiItem(Material.CLOCK, "⏱ Время игры"));
+        inv.setItem(11, GuiUtil.createGuiItem(Material.COMPARATOR, "🎭 Настройки ролей"));
+        inv.setItem(12, GuiUtil.createGuiItem(Material.NAME_TAG, "💬 Префиксы и сообщения"));
+        inv.setItem(13, GuiUtil.createGuiItem(Material.BARRIER, "❌ Прочие настройки"));
 
-        inv.setItem(13, GuiUtil.createGuiItem(Material.COMPARATOR, "🔧 Настроить роли",
-                "Изменить включённые роли"));
-
-        inv.setItem(15, GuiUtil.createGuiItem(Material.BARRIER, "❌ Закрыть"));
+        inv.setItem(35, GuiUtil.createGuiItem(Material.BARRIER, "❌ Назад"));
 
         player.openInventory(inv);
     }
@@ -36,14 +33,20 @@ public class SettingsGui implements Listener {
         SnovyMafia plugin = SnovyMafia.getInstance();
 
         switch (e.getRawSlot()) {
-            case 11: // Время
+            case 10: // Время
                 TimeSettingsGui.open(player, plugin);
                 break;
-            case 13: // Роли
+            case 11: // Роли
                 RoleSettingsGui.open(player, plugin);
                 break;
-            case 15: // Закрыть
-                player.closeInventory();
+            case 12: // Префиксы
+                MessageSettingsGui.open(player, plugin);
+                break;
+            case 13: // Прочее
+                OtherSettingsGui.open(player, plugin);
+                break;
+            case 35: // Назад
+                MainGui.open(player, plugin);
                 break;
         }
     }

@@ -14,19 +14,21 @@ public class TimeSettingsGui implements Listener {
     public static void open(Player player, SnovyMafia plugin) {
         Inventory inv = org.bukkit.Bukkit.createInventory(null, 36, TITLE);
 
-        // Время ночи
         inv.setItem(10, GuiUtil.createGuiItem(Material.REDSTONE, "🌙 Время ночи",
                 "Текущее: §c" + plugin.getNightDurationSeconds() + "с",
                 " ",
                 "§eКликни, чтобы изменить"));
 
-        // Время голосования
-        inv.setItem(16, GuiUtil.createGuiItem(Material.LIME_DYE, "🗣️ Время голосования",
+        inv.setItem(12, GuiUtil.createGuiItem(Material.LIME_DYE, "🗣️ Время голосования",
                 "Текущее: §c" + plugin.getDayVoteDuration() + "с",
                 " ",
                 "§eКликни, чтобы изменить"));
 
-        // Назад
+        inv.setItem(14, GuiUtil.createGuiItem(Material.CLOCK, "⏰ Время отсчёта",
+                "Текущее: §c" + plugin.getStartCountdownDuration() + "с",
+                " ",
+                "§eКликни, чтобы изменить"));
+
         inv.setItem(35, GuiUtil.createGuiItem(Material.BARRIER, "❌ Назад"));
 
         player.openInventory(inv);
@@ -42,11 +44,13 @@ public class TimeSettingsGui implements Listener {
 
         switch (e.getRawSlot()) {
             case 10: // Время ночи
-                // Открываем GUI с выбором времени (например, 30, 60, 90, 120)
                 NightTimeChoiceGui.open(player, plugin);
                 break;
-            case 16: // Время голосования
+            case 12: // Время голосования
                 VoteTimeChoiceGui.open(player, plugin);
+                break;
+            case 14: // Время отсчёта
+                StartCountdownChoiceGui.open(player, plugin);
                 break;
             case 35: // Назад
                 SettingsGui.open(player, plugin);

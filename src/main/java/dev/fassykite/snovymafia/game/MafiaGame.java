@@ -599,7 +599,7 @@ public class MafiaGame implements Listener {
     }
 
     private void broadcast(String msg) {
-        Bukkit.broadcastMessage("🎭 §f" + msg);
+        Bukkit.broadcastMessage("§e🎭 §f" + msg);
     }
 
     public void endGame() {

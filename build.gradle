@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'dev.fassykite'
-version = '2.12.10-beta'
+version = '2.12.11-beta'
 
 repositories {
     mavenCentral()

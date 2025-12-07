@@ -1,5 +1,5 @@
 name: SnovyMafia
-version: '2.12.6'
+version: '2.12.10'
 main: dev.fassykite.snovymafia.SnovyMafia
 api-version: 1.21
 depend: ["PlaceholderAPI"]

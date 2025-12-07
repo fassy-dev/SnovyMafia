@@ -225,7 +225,7 @@ public class MafiaGame implements Listener {
         phase = Phase.VOTING;
         secondsLeft = plugin.getDayVoteDuration();
         votes.clear();
-        broadcast("ДЕНЬ. Голосование за подозреваемого (" + secondsLeft + " сек)!");
+        broadcast("§eДЕНЬ. §fГолосование за подозреваемого (" + secondsLeft + " сек)!");
         broadcast("Напиши §f/vote <ник> §fчтобы проголосовать.");
         setMinecraftTime(true);
         startTimer();
@@ -235,7 +235,7 @@ public class MafiaGame implements Listener {
         phase = Phase.NIGHT;
         secondsLeft = plugin.getNightDurationSeconds();
         targets.clear();
-        broadcast("НОЧЬ. Ночные роли, действуйте...");
+        broadcast("§9НОЧЬ. Ночные роли, действуйте...");
         setMinecraftTime(false);
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -308,16 +308,18 @@ public class MafiaGame implements Listener {
                 }
                 secondsLeft--;
                 updateActionBar();
-                updateScoreboardForAll();
+                if (secondsLeft % 1 == 0) {
+                    updateScoreboardForAll();
+                }
                 if (phase == Phase.VOTING && secondsLeft % 15 == 0) {
                     broadcastVotes();
                 }
             }
-        }.runTaskTimer(plugin, 0, 20);
+        }.runTaskTimer(plugin, 0, 20); // каждую секунду
     }
 
     private void updateScoreboardForAll() {
-        String phaseLine = (phase == Phase.VOTING) ? "Голосование" : "Ночь";
+        String phaseLine = (phase == Phase.VOTING) ? "Голосование" : "§9Ночь";
         String timeLine = String.format("%02d:%02d", secondsLeft / 60, secondsLeft % 60);
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -325,17 +327,24 @@ public class MafiaGame implements Listener {
 
             Scoreboard board = playerScoreboards.computeIfAbsent(p.getUniqueId(), k -> {
                 Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
-                Objective obj = sb.registerNewObjective("mafia", "dummy", SCOREBOARD_TITLE);
+                Objective obj = sb.registerNewObjective("mafia_" + p.getUniqueId().toString().substring(0, 8), "dummy", SCOREBOARD_TITLE);
                 obj.setDisplaySlot(DisplaySlot.SIDEBAR);
                 return sb;
             });
 
-            Objective obj = board.getObjective("mafia");
+            Objective obj = board.getObjective("mafia_" + p.getUniqueId().toString().substring(0, 8));
             if (obj != null) {
+                // 🔥 Очищаем старые строки
+                for (String entry : board.getEntries()) {
+                    if (entry.startsWith("§6Фаза:") || entry.startsWith("§6Время:") || entry.startsWith("§6Статус:")) {
+                        board.resetScores(entry);
+                    }
+                }
+
                 obj.getScore(" ").setScore(4);
-                obj.getScore("Фаза: " + phaseLine).setScore(3);
-                obj.getScore("Время: " + timeLine).setScore(2);
-                obj.getScore("Статус: Игра").setScore(1);
+                obj.getScore("§6Фаза: §7" + phaseLine).setScore(3);
+                obj.getScore("§6Время: §7" + timeLine).setScore(2);
+                obj.getScore("§6Статус: §7Игра").setScore(1);
             }
             p.setScoreboard(board);
         }
@@ -355,7 +364,7 @@ public class MafiaGame implements Listener {
 
     private void processVoting() {
         if (votes.isEmpty()) {
-            broadcast("Никто не был выбран. Никто не убит.");
+            broadcast("§8Никто не был выбран. Никто не убит.");
             return;
         }
 
@@ -371,7 +380,7 @@ public class MafiaGame implements Listener {
 
         if (toKill != null) {
             toKill.setHealth(0);
-            broadcast("Казнён: " + toKill.getName() + " (" + voteCount.get(toKill) + " голосов)");
+            broadcast("§cКазнён: " + toKill.getName() + " (" + voteCount.get(toKill) + " голосов)");
         }
     }
 
@@ -390,7 +399,7 @@ public class MafiaGame implements Listener {
 
         StringBuilder sb = new StringBuilder("Голоса: ");
         if (voteCount.isEmpty()) {
-            sb.append("ещё никто не голосовал");
+            sb.append("§8ещё никто не голосовал");
         } else {
             voteCount.entrySet().stream()
                     .sorted(Map.Entry.<Player, Integer>comparingByValue().reversed())
@@ -454,26 +463,26 @@ public class MafiaGame implements Listener {
             if (!toProtect.contains(victim)) {
                 victim.setHealth(0);
                 actuallyKilled.add(victim);
-                broadcast("Убит: " + victim.getName());
+                broadcast("§cУбит: " + victim.getName());
             } else {
-                broadcast("Спасён: " + victim.getName());
+                broadcast("§bСпасён: " + victim.getName());
             }
         }
 
         for (Player killer : kamikazeMap.keySet()) {
             if (actuallyKilled.contains(kamikazeMap.get(killer))) {
                 killer.setHealth(0);
-                broadcast("Камикадзе унёс с собой: " + killer.getName());
+                broadcast("§cКамикадзе унёс с собой: " + killer.getName());
             }
         }
 
         if (lover1 != null && lover2 != null) {
             if (actuallyKilled.contains(lover1) && !actuallyKilled.contains(lover2)) {
                 lover2.setHealth(0);
-                broadcast("Любовник умер от горя: " + lover2.getName());
+                broadcast("§cЛюбовник умер от горя: " + lover2.getName());
             } else if (actuallyKilled.contains(lover2) && !actuallyKilled.contains(lover1)) {
                 lover1.setHealth(0);
-                broadcast("Любовник умер от горя: " + lover1.getName());
+                broadcast("§cЛюбовник умер от горя: " + lover1.getName());
             }
         }
 
@@ -483,7 +492,7 @@ public class MafiaGame implements Listener {
                 if (!alive.isEmpty()) {
                     Player random = alive.get(ThreadLocalRandom.current().nextInt(alive.size()));
                     random.setHealth(0);
-                    broadcast("Террорист унёс с собой: " + random.getName());
+                    broadcast("§cТеррорист унёс с собой: " + random.getName());
                 }
             }
         }
@@ -517,7 +526,7 @@ public class MafiaGame implements Listener {
         boolean maniacWins = neutralKilling > 0 && mafiaCount == 0 && villagerCount <= 1;
 
         if (mafiaWins) {
-            broadcast("Победила мафия!");
+            broadcast("§4Победила мафия!");
             // Обновляем статистику
             for (Map.Entry<UUID, Role> entry : roles.entrySet()) {
                 Player p = Bukkit.getPlayer(entry.getKey());
@@ -530,7 +539,7 @@ public class MafiaGame implements Listener {
             }
             endGame();
         } else if (villagersWin) {
-            broadcast("Победили мирные!");
+            broadcast("§aПобедили мирные!");
             for (Map.Entry<UUID, Role> entry : roles.entrySet()) {
                 Player p = Bukkit.getPlayer(entry.getKey());
                 if (p != null) {
@@ -542,7 +551,7 @@ public class MafiaGame implements Listener {
             }
             endGame();
         } else if (maniacWins) {
-            broadcast("Победил маньяк!");
+            broadcast("§4Победил маньяк!");
             for (Map.Entry<UUID, Role> entry : roles.entrySet()) {
                 Player p = Bukkit.getPlayer(entry.getKey());
                 if (p != null) {
@@ -575,8 +584,8 @@ public class MafiaGame implements Listener {
     }
 
     private void updateActionBar() {
-        String phaseText = (phase == Phase.VOTING) ? "Голосование" : "Ночь";
-        String time = String.format("Осталось: %02d:%02d", secondsLeft / 60, secondsLeft % 60);
+        String phaseText = (phase == Phase.VOTING) ? "Голосование" : "§9Ночь";
+        String time = String.format("§8Осталось: %02d:%02d", secondsLeft / 60, secondsLeft % 60);
         String actionBar = phaseText + " | " + time;
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -594,7 +603,7 @@ public class MafiaGame implements Listener {
     }
 
     public void endGame() {
-        // Убираем scoreboard
+        // 🔥 Очищаем scoreboard у всех игроков
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (playerScoreboards.containsKey(p.getUniqueId())) {
                 p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
@@ -602,29 +611,35 @@ public class MafiaGame implements Listener {
         }
         playerScoreboards.clear();
 
-        // 🔥 УБИРАЕМ НЕВИДИМОСТЬ
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (invisiblePlayers.contains(p.getUniqueId())) {
+        // 👻 Убираем невидимость у всех, кто её имел
+        for (UUID id : invisiblePlayers) {
+            Player p = Bukkit.getPlayer(id);
+            if (p != null && p.hasPotionEffect(org.bukkit.potion.PotionEffectType.INVISIBILITY)) {
                 p.removePotionEffect(org.bukkit.potion.PotionEffectType.INVISIBILITY);
             }
         }
         invisiblePlayers.clear();
 
-        gameActive = false;
-        plugin.setCurrentGame(null);
+        // 🧹 Очищаем все списки
         roles.clear();
         targets.clear();
         votes.clear();
-        queuedPlayers.clear(); // ← ОЧИЩАЕМ ОЧЕРЕДЬ
+        queuedPlayers.clear();
         acceptingPlayers = true; // снова можно записываться
+
+        // 💕 Сбрасываем связанных возлюбленных
         lover1 = null;
         lover2 = null;
 
-        // Возвращаем цикл дня/ночи
+        // 🌙 Возвращаем цикл дня/ночи
         World world = Bukkit.getWorlds().get(0);
         if (world != null) {
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
         }
+
+        // 🔚 Завершаем игру
+        gameActive = false;
+        plugin.setCurrentGame(null);
     }
 
     @EventHandler

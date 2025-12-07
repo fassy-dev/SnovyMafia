@@ -1,12 +1,12 @@
 package dev.fassykite.snovymafia;
 
-import dev.fassykite.snovymafia.commands.MafiaCommand;
-import dev.fassykite.snovymafia.commands.MafiaTabCompleter;
+import dev.fassykite.snovymafia.commands.*;
 import dev.fassykite.snovymafia.expansion.SnovyMafiaExpansion;
 import dev.fassykite.snovymafia.game.MafiaGame;
 import dev.fassykite.snovymafia.game.Role;
 import dev.fassykite.snovymafia.gui.*;
 import dev.fassykite.snovymafia.listeners.NightListener;
+import dev.fassykite.snovymafia.utils.PlayerStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -41,6 +41,7 @@ public class SnovyMafia extends JavaPlugin {
     private String messageGameEnded = "Игра окончена.";
 
     private MafiaGame currentGame;
+    private PlayerStatsManager statsManager;
 
     @Override
     public void onEnable() {
@@ -53,9 +54,13 @@ public class SnovyMafia extends JavaPlugin {
             new SnovyMafiaExpansion(this).register();
         }
 
-        // Регистрация команд
+        // Инициализация PlayerStatsManager
+        this.statsManager = new PlayerStatsManager(this);
+
+        // Регистрация основных команд
         getCommand("mafia").setExecutor(new MafiaCommand(this));
         getCommand("mafia").setTabCompleter(new MafiaTabCompleter());
+        getCommand("vote").setExecutor(new VoteCommand(this));
 
         // Регистрация слушателей
         getServer().getPluginManager().registerEvents(new MafiaGame(this), this);
@@ -283,4 +288,5 @@ public class SnovyMafia extends JavaPlugin {
     public Set<String> getLeaders() { return leaders; }
     public MafiaGame getCurrentGame() { return currentGame; }
     public void setCurrentGame(MafiaGame game) { this.currentGame = game; }
+    public PlayerStatsManager getStatsManager() { return statsManager; }
 }

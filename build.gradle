@@ -3,17 +3,18 @@ plugins {
 }
 
 group = 'dev.fassykite'
-version = '2.12.0-beta'
+version = '2.12.6-beta'
 
 repositories {
     mavenCentral()
     maven { url = 'https://repo.papermc.io/repository/maven-public/' }
-    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' } // Репозиторий PlaceholderAPI
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
 }
 
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT'
-    compileOnly 'me.clip:placeholderapi:2.11.7' // Обновлённая версия
+    compileOnly 'me.clip:placeholderapi:2.11.7'
+    implementation 'net.kyori:adventure-text-minimessage:4.17.0'
 }
 
 java {

@@ -23,7 +23,7 @@ public class SnovyMafiaExpansion extends PlaceholderExpansion {
 
     @Override
     public String getVersion() {
-        return "2.12.0";
+        return "1.0";
     }
 
     @Override
@@ -43,10 +43,15 @@ public class SnovyMafiaExpansion extends PlaceholderExpansion {
             return "0";
         }
 
+        if (identifier.equals("current_phase")) {
+            var game = plugin.getCurrentGame();
+            if (game != null) {
+                return game.getPhase().name();
+            }
+            return "WAITING";
+        }
+
         return null;
     }
 
-    public boolean register() {
-        return true;
-    }
 }

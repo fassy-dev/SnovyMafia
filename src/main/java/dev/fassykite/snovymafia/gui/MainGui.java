@@ -1,7 +1,7 @@
 package dev.fassykite.snovymafia.gui;
 
 import dev.fassykite.snovymafia.SnovyMafia;
-import dev.fassykite.snovymafia.game.Role;
+import dev.fassykite.snovymafia.game.MafiaGame;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,20 +17,75 @@ public class MainGui implements Listener {
     public static void open(Player player, SnovyMafia plugin) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
 
+        // 🎨 Фон
+        for (int i = 0; i < 54; i++) {
+            inv.setItem(i, GuiUtil.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " "));
+        }
+
         // 🎮 Управление игрой
-        inv.setItem(10, GuiUtil.createGuiItem(Material.EMERALD_BLOCK, "▶ Начать игру (60с)",
-                " ",
-                "§7Запуск игры с 60-секундным отсчётом",
-                "§7Участники: §eзаписавшиеся или онлайн"));
+        boolean gameRunning = plugin.getCurrentGame() != null;
+        MafiaGame game = plugin.getCurrentGame();
+        boolean inWaitingPhase = game != null && game.getPhase() == MafiaGame.Phase.WAITING;
+        boolean inQueue = game != null && game.isPlayerInQueue(player);
 
-        inv.setItem(11, GuiUtil.createGuiItem(Material.LIME_CONCRETE, "⚡ Начать игру (сразу)",
-                " ",
-                "§7Запуск игры без ожидания",
-                "§7Игра начнётся сразу"));
+        if (gameRunning) {
+            inv.setItem(10, GuiUtil.createGuiItem(
+                    Material.RED_CONCRETE,
+                    "🔴 Игра уже идёт!",
+                    " ",
+                    "§cИгра уже запущена!"));
 
-        inv.setItem(12, GuiUtil.createGuiItem(Material.REDSTONE_BLOCK, "⏹ Остановить игру",
-                " ",
-                "§7Принудительно завершить текущую игру"));
+            inv.setItem(12, GuiUtil.createGuiItem(
+                    Material.REDSTONE_BLOCK,
+                    "⏹ Остановить игру",
+                    " ",
+                    "§7Принудительно завершить текущую игру"));
+        } else {
+            inv.setItem(10, GuiUtil.createGuiItem(
+                    Material.EMERALD_BLOCK,
+                    "▶ Начать игру (60с)",
+                    " ",
+                    "§7Запуск игры с 60-секундным отсчётом",
+                    "§7Участники: §eзаписавшиеся или онлайн"));
+
+            inv.setItem(11, GuiUtil.createGuiItem(
+                    Material.LIME_CONCRETE,
+                    "⚡ Начать игру (сразу)",
+                    " ",
+                    "§7Запуск игры без ожидания",
+                    "§7Игра начнётся сразу"));
+        }
+
+        // 🔘 Кнопка "Зайти/Выйти из очереди"
+        if (gameRunning && inWaitingPhase && inQueue) {
+            inv.setItem(14, GuiUtil.createGuiItem(
+                    Material.BARRIER,
+                    "🚪 Выйти из очереди",
+                    " ",
+                    "§7Ты записан в игру.",
+                    "§eКликни, чтобы выйти из очереди."));
+        } else if (gameRunning && inWaitingPhase && !inQueue) {
+            inv.setItem(14, GuiUtil.createGuiItem(
+                    Material.PLAYER_HEAD,
+                    "📥 Записаться в игру",
+                    " ",
+                    "§7Игра в режиме ожидания.",
+                    "§eКликни, чтобы записаться."));
+        } else if (gameRunning && !inWaitingPhase) {
+            inv.setItem(14, GuiUtil.createGuiItem(
+                    Material.BARRIER,
+                    "❌ Игра уже идёт!",
+                    " ",
+                    "§cТы не можешь записаться или выйти.",
+                    "§7Фаза: §e" + game.getPhase().name()));
+        } else {
+            inv.setItem(14, GuiUtil.createGuiItem(
+                    Material.PLAYER_HEAD,
+                    "📥 Записаться в игру",
+                    " ",
+                    "§7Записаться в игру.",
+                    "§eКликни, чтобы записаться."));
+        }
 
         // ⚙️ Настройки
         inv.setItem(20, GuiUtil.createGuiItem(Material.HOPPER, "⚙️ Настройки",
@@ -41,16 +96,7 @@ public class MainGui implements Listener {
                 " ",
                 "§7Включить/выключить роли"));
 
-        // 👤 Участие
-        inv.setItem(30, GuiUtil.createGuiItem(Material.PLAYER_HEAD, "📥 Записаться в игру",
-                " ",
-                "§7Добавить себя в очередь участников"));
-
-        inv.setItem(31, GuiUtil.createGuiItem(Material.BARRIER, "🚪 Выйти из очереди",
-                " ",
-                "§7Убрать себя из очереди"));
-
-        // 📊 Информация (с PlaceholderAPI)
+        // 📊 Информация (PlaceholderAPI)
         String enabledRolesPlaceholder = "%snovymafia_enabled_roles%";
         String queuedPlayersPlaceholder = "%snovymafia_queued_players%";
 
@@ -84,6 +130,7 @@ public class MainGui implements Listener {
                 } else {
                     player.sendMessage("🎭 §cИгра уже идёт!");
                 }
+                open(player, plugin); // обновляем GUI
                 break;
 
             case 11: // Начать игру (сразу)
@@ -93,6 +140,7 @@ public class MainGui implements Listener {
                 } else {
                     player.sendMessage("🎭 §cИгра уже идёт!");
                 }
+                open(player, plugin); // обновляем GUI
                 break;
 
             case 12: // Остановить игру
@@ -102,6 +150,36 @@ public class MainGui implements Listener {
                 } else {
                     player.sendMessage("🎭 §7Игра не запущена.");
                 }
+                open(player, plugin); // обновляем GUI
+                break;
+
+            case 14: // Зайти/Выйти из очереди
+                MafiaGame game = plugin.getCurrentGame();
+                if (game == null) {
+                    // Игра не запущена — невозможно записаться
+                    player.sendMessage("🎭 §cСначала начни игру!");
+                    break;
+                }
+
+                if (game.getPhase() != MafiaGame.Phase.WAITING) {
+                    player.sendMessage("🎭 §cИгра уже идёт, нельзя записаться/выйти.");
+                    break;
+                }
+
+                if (game.isPlayerInQueue(player)) {
+                    if (game.removePlayerFromQueue(player)) {
+                        player.sendMessage("🎭 §aТы вышел из очереди.");
+                    } else {
+                        player.sendMessage("🎭 §cТы не записан в игру.");
+                    }
+                } else {
+                    if (game.addPlayerToQueue(player)) {
+                        player.sendMessage("🎭 §aТы записался в игру!");
+                    } else {
+                        player.sendMessage("🎭 §cТы уже в очереди!");
+                    }
+                }
+                open(player, plugin); // обновляем GUI
                 break;
 
             case 20: // Настройки
@@ -110,32 +188,6 @@ public class MainGui implements Listener {
 
             case 21: // Настроить роли
                 RoleSettingsGui.open(player, plugin);
-                break;
-
-            case 30: // Записаться
-                if (plugin.getCurrentGame() != null && plugin.getCurrentGame().getPhase() != dev.fassykite.snovymafia.game.MafiaGame.Phase.WAITING) {
-                    player.sendMessage("🎭 §cИгра уже идёт или не в фазе ожидания.");
-                    break;
-                }
-                var game = plugin.getCurrentGame();
-                if (game == null) game = new dev.fassykite.snovymafia.game.MafiaGame(plugin);
-                if (game.addPlayerToQueue(player)) {
-                    player.sendMessage("🎭 §aТы успешно записался в игру!");
-                } else {
-                    player.sendMessage("🎭 §cТы уже в очереди!");
-                }
-                break;
-
-            case 31: // Выйти из очереди
-                if (plugin.getCurrentGame() != null && plugin.getCurrentGame().getPhase() != dev.fassykite.snovymafia.game.MafiaGame.Phase.WAITING) {
-                    player.sendMessage("🎭 §cИгра уже идёт или не в фазе ожидания.");
-                    break;
-                }
-                if (plugin.getCurrentGame() != null && plugin.getCurrentGame().removePlayerFromQueue(player)) {
-                    player.sendMessage("🎭 §aТы вышел из очереди.");
-                } else {
-                    player.sendMessage("🎭 §cТы не записан в игру.");
-                }
                 break;
 
             case 53: // Закрыть

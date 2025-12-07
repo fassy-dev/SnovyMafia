@@ -512,14 +512,46 @@ public class MafiaGame implements Listener {
                 .filter(r -> r != null && r.getAlignment() == RoleAlignment.NEUTRAL_KILLING)
                 .count();
 
-        if (mafiaCount > 0 && mafiaCount >= villagerCount + neutralKilling) {
+        boolean mafiaWins = mafiaCount > 0 && mafiaCount >= villagerCount + neutralKilling;
+        boolean villagersWin = mafiaCount == 0 && neutralKilling == 0;
+        boolean maniacWins = neutralKilling > 0 && mafiaCount == 0 && villagerCount <= 1;
+
+        if (mafiaWins) {
             broadcast("Победила мафия!");
+            // Обновляем статистику
+            for (Map.Entry<UUID, Role> entry : roles.entrySet()) {
+                Player p = Bukkit.getPlayer(entry.getKey());
+                if (p != null) {
+                    boolean won = entry.getValue().getAlignment() == RoleAlignment.MAFIA;
+                    boolean wasKiller = entry.getValue() == Role.MAFIA || entry.getValue() == Role.DON || entry.getValue() == Role.GANGSTER || entry.getValue() == Role.MANIAC;
+                    boolean wasHealer = entry.getValue() == Role.DOCTOR || entry.getValue() == Role.BODYGUARD;
+                    plugin.getStatsManager().updateStatsAfterGame(entry.getKey(), won, entry.getValue(), wasKiller, wasHealer);
+                }
+            }
             endGame();
-        } else if (mafiaCount == 0 && neutralKilling == 0) {
+        } else if (villagersWin) {
             broadcast("Победили мирные!");
+            for (Map.Entry<UUID, Role> entry : roles.entrySet()) {
+                Player p = Bukkit.getPlayer(entry.getKey());
+                if (p != null) {
+                    boolean won = entry.getValue().getAlignment() == RoleAlignment.VILLAGER;
+                    boolean wasKiller = entry.getValue() == Role.MAFIA || entry.getValue() == Role.DON || entry.getValue() == Role.GANGSTER || entry.getValue() == Role.MANIAC;
+                    boolean wasHealer = entry.getValue() == Role.DOCTOR || entry.getValue() == Role.BODYGUARD;
+                    plugin.getStatsManager().updateStatsAfterGame(entry.getKey(), won, entry.getValue(), wasKiller, wasHealer);
+                }
+            }
             endGame();
-        } else if (neutralKilling > 0 && mafiaCount == 0 && villagerCount <= 1) {
+        } else if (maniacWins) {
             broadcast("Победил маньяк!");
+            for (Map.Entry<UUID, Role> entry : roles.entrySet()) {
+                Player p = Bukkit.getPlayer(entry.getKey());
+                if (p != null) {
+                    boolean won = entry.getValue() == Role.MANIAC;
+                    boolean wasKiller = entry.getValue() == Role.MAFIA || entry.getValue() == Role.DON || entry.getValue() == Role.GANGSTER || entry.getValue() == Role.MANIAC;
+                    boolean wasHealer = entry.getValue() == Role.DOCTOR || entry.getValue() == Role.BODYGUARD;
+                    plugin.getStatsManager().updateStatsAfterGame(entry.getKey(), won, entry.getValue(), wasKiller, wasHealer);
+                }
+            }
             endGame();
         }
     }

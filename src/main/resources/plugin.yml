@@ -1,9 +1,10 @@
 name: SnovyMafia
-version: '2.12.0-beta'
+version: '2.12.6'
 main: dev.fassykite.snovymafia.SnovyMafia
 api-version: 1.21
+depend: ["PlaceholderAPI"]
 authors: [Fassykite]
-description: Игра Mafia на снежную тематику от Fassykite
+description: "Мафия для Minecraft серверов с PlaceholderAPI и градиентами by fassykite"
 commands:
   mafia:
     description: Основная команда мафии
@@ -11,9 +12,20 @@ commands:
       /<command> - открыть GUI (для ведущих)
       /<command> join - записаться в игру
       /<command> leave - выйти из очереди
-      /<command> leading add <ник> - добавить ведущего
-      /<command> leading remove <ник> - убрать ведущего
+      /<command> stats [ник] - статистика игрока
+      /<command> top - топ игроков
+      /<command> history - история игр
+      /<command> lose - сколько раз проиграл
+      /<command> winrate - процент побед
+      /<command> roles - роли, за которые играл
+      /<command> reload - перезагрузить плагин
+      /<command> info - информация о плагине
+      /<command> leading add/remove <ник> - ведущие
     aliases: [мафия]
   vote:
     description: Проголосовать за игрока днём
     usage: /vote <ник>
+permissions:
+  snovymafia.admin:
+    description: Права администратора
+    default: op

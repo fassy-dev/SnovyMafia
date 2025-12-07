@@ -14,24 +14,33 @@ public class MafiaTabCompleter implements TabCompleter {
         List<String> suggestions = new ArrayList<>();
 
         if (args.length == 1) {
-            // Подсказываем первые аргументы
             if (sender.hasPermission("snovymafia.admin") || sender.isOp()) {
-                suggestions.add("join");
+                suggestions.add("goin");
                 suggestions.add("leave");
                 suggestions.add("leading");
+                suggestions.add("stats");
+                suggestions.add("top");
+                suggestions.add("history");
+                suggestions.add("lose");
+                suggestions.add("winrate");
+                suggestions.add("roles");
+                suggestions.add("reload");
+                suggestions.add("info");
             } else {
-                suggestions.add("join");
+                suggestions.add("goin");
                 suggestions.add("leave");
+                suggestions.add("stats");
+                suggestions.add("top");
+                suggestions.add("history");
+                suggestions.add("lose");
+                suggestions.add("winrate");
+                suggestions.add("roles");
             }
         }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("leading")) {
             suggestions.add("add");
             suggestions.add("remove");
-        }
-
-        if (args.length == 3 && args[0].equalsIgnoreCase("leading")) {
-            suggestions.add("<ник>");
         }
 
         return suggestions;
